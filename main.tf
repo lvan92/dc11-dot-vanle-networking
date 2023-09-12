@@ -1,74 +1,55 @@
 terraform {
   backend "s3" {
+    encrypt                 = true
+    profile                 = default
     bucket                  = "dc11-dot-van-le-networking"
-    key                     = "my-terraform"
+    key                     = "networking/terraform.tfstate"
     region                  = "us-east-1"
-    shared_credentials_file = "~/.aws/credentials"
+    dynamodb_table = "terraform-state-dynamodb-table-lock"
   }
 }
 
 provider "aws" {
   region                  = "us-east-1"
-  shared_credentials_file = "~/.aws/credentials"
+  profile = format("%s%s", "dc11-dot-", terraform.workspace)
 }
 
-resource "aws_vpc" "main" {
- cidr_block = "10.0.0.0/16"
- assign_generated_ipv6_cidr_block= true
- tags = {
-   Name = "Networking VPC"
- }
-}
-
-resource "aws_subnet" "public_subnets" {
- count             = length(var.public_subnet_cidrs)
- vpc_id            = aws_vpc.main.id
- cidr_block        = element(var.public_subnet_cidrs, count.index)
- availability_zone = element(var.azs, count.index)
- tags = {
-   Name = "Public Subnet ${count.index + 1}"
- }
-}
-
-resource "aws_subnet" "private_subnets" {
- count             = length(var.private_subnet_cidrs)
- vpc_id            = aws_vpc.main.id
- cidr_block        = element(var.private_subnet_cidrs, count.index)
- availability_zone = element(var.azs, count.index)
- tags = {
-   Name = "Private Subnet ${count.index + 1}"
- }
-}
-
-resource "aws_internet_gateway" "qw" {
-  vpc_id = aws_vpc.main.id
-
+resource "aws_s3_bucket" "terraform_state_s3_bucket" {
+  bucket = "dc11-dot-van-le-networking"
+  lifecycle {
+    prevent_destroy = true
+  }
   tags = {
-    Name = "Networking VPC IG"
+    Name = "Terraform bucket state s3"
   }
 }
 
-resource "aws_route_table" "second_rt" {
- vpc_id = aws_vpc.main.id
- route {
-   cidr_block = "0.0.0.0/0"
-   gateway_id = aws_internet_gateway.gw.id
- }
- tags = {
-   Name = "Networking 2nd Route Table"
- }
+resource "aws_s3_bucket_versioning" "terraform_state_s3_versioning" {
+  bucket = aws_s3_bucket.terraform_state_s3_bucket.id
+  versioning_configuration {
+    status = "Enabled"
+  }
 }
 
-resource "aws_route_table_association" "public_subnet_asso" {
- count = length(var.public_subnet_cidrs)
- subnet_id      = element(aws_subnet.public_subnets[*].id, count.index)
- route_table_id = aws_route_table.second_rt.id
+resource "aws_s3_bucket_server_side_encryption_configuration" "terraform_state_s3_encrytion" {
+  bucket = aws_s3_bucket.terraform_state_s3_bucket.id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
+    }
+  }
 }
 
-resource "aws_egress_only_internet_gateway" "eogw" {
-  vpc_id = aws_vpc.main.id
-
+resource "aws_dynamodb_table" "terraform-state-dynamodb-table" {
+  name         = "terraform-state-dynamodb-table-lock"
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key     = "LockID"
+  attribute {
+    name = "LockID"
+    type = "S"
+  }
   tags = {
-    Name = "Networking VPC EOGW"
+    Name = "Terraform state dynamodb table lock"
   }
 }
