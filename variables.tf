@@ -15,3 +15,9 @@ variable "azs" {
  description = "Availability Zones"
  default     = ["us-east-1a", "us-east-1b", "us-east-1c"]
 }
+
+variable "private_subnets_ipv6" {
+ type        = list(string)
+ description = "Private Subnet Ipv6 CIDR values"
+ default     = ["2406:da18:03bc:6e01::/64", "2406:da18:03bc:6e02::/64", "2406:da18:03bc:6e03::/64"]
+}

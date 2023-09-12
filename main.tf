@@ -16,9 +16,6 @@ provider "aws" {
 
 resource "aws_s3_bucket" "terraform_state_s3_bucket" {
   bucket = "dc11-dot-van-le-networking"
-  lifecycle {
-    prevent_destroy = true
-  }
   tags = {
     Name = "Terraform bucket state s3"
   }
