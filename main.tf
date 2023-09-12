@@ -11,7 +11,7 @@ terraform {
 
 provider "aws" {
   region                  = "us-east-1"
-  profile = format("%s%s", "dc11-dot-", terraform.workspace)
+  shared_credentials_file = "~/.aws/credentials"
 }
 
 resource "aws_s3_bucket" "terraform_state_s3_bucket" {
