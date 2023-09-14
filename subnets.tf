@@ -63,7 +63,7 @@ resource "aws_subnet" "private_subnets" {
  cidr_block                      = element(var.private_subnet_cidrs, count.index)
  availability_zone               = element(var.azs, count.index)
 
- ipv6_cidr_block                 = element(cidrsubnet(aws_vpc.main.ipv6_cidr_block,8,1))
+ ipv6_cidr_block                 = "${cidrsubnet(aws_vpc.main.ipv6_cidr_block,8,1)}"
  assign_ipv6_address_on_creation = true
  tags = {
    Name = "Private Subnet ${count.index + 1}"
