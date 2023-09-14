@@ -19,5 +19,5 @@ variable "azs" {
 variable "private_subnets_ipv6" {
  type        = list(string)
  description = "Private Subnet Ipv6 CIDR values"
- default     = ["2406:da18:03bc:6e01::/64", "2406:da18:03bc:6e02::/64", "2406:da18:03bc:6e03::/64"]
+ default     = ["2600:1f18:3243:7a01::/64", "2600:1f18:3243:7a02::/64", "2600:1f18:3243:7a03::/64"]
 }
