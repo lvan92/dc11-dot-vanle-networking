@@ -24,7 +24,7 @@ resource "aws_internet_gateway" "public_gateway" {
 resource "aws_subnet" "public_subnets" {
  count             = length(var.public_subnet_cidrs)
  vpc_id            = aws_vpc.main.id
- cidr_block        = element(var.public_subnet_cidrs, count.index)
+ cidr_block        = "${cidrsubnet(aws_vpc.main.cidr_block,4,count.index +1)}"
  availability_zone = element(var.azs, count.index)
  tags = {
    Name = "Public Subnet ${count.index + 1}"

@@ -2,7 +2,7 @@ terraform {
   backend "s3" {
     encrypt                 = true
     key                     = "networking/terraform.tfstate"
-    bucket                  = "dc11-dot-van-le-networking"
+    bucket                  = "devops-vanle-terraform-state-s3"
     profile                 = "default"
     region                  = "us-east-1"
     dynamodb_table = "terraform-state-dynamodb-table-lock"
@@ -15,7 +15,7 @@ provider "aws" {
 }
 
 resource "aws_s3_bucket" "terraform_state_s3_bucket" {
-  bucket = "dc11-dot-van-le-networking"
+  bucket = "devops-vanle-terraform-state-s3"
   tags = {
     Name = "Terraform bucket state s3"
   }
