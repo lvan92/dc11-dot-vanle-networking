@@ -17,7 +17,7 @@ provider "aws" {
 resource "aws_s3_bucket" "terraform_state_s3_bucket" {
   bucket = "devops-vanle-terraform-state-s3"
   tags = {
-    Name = "Terraform bucket state s3"
+    name = "Terraform bucket state s3"
   }
 }
 
